@@ -38,8 +38,7 @@ public final class LoanRequest {
     }
 
     /**
-     * Pokok pinjaman awal = Total Pinjaman - DP.
-     * Ini "Pokok Pinjaman" tahun 1 di Rumus.xlsx.
+     * Pokok pinjaman awal = Total Pinjaman - DP. ini pokok pinjaman tahun 1
      */
 
     public BigDecimal getPrincipal() {
