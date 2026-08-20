@@ -3,15 +3,15 @@ package com.aditya.creditsimulator.model;
 import java.math.BigDecimal;
 
 /**
- * Hasil kalkulasi buat 1 tahun. LoanCalculator bakal return
- * List<InstallmentResult>, satu entry per tahun tenor
+ * hasil kalkulasi buat 1 tahun. LoanCalculator bakal return
+ * list<InstallmentResult>, satu entry per tahun tenor
  * breakdown tahun 1/2/3 di Rumus.xlsx.
 
  * Mapping rumus
  *   year              -> "tahun ke-"
- *   startingPrincipal -> "Pokok Pinjaman"
- *   rate              -> "Rate"
- *   totalWithInterest -> "Total Pinjaman" (pokok + bunga tahun ini)
+ *   startingPrincipal -> "pokok Pinjaman"
+ *   rate              -> "rate"
+ *   totalWithInterest -> "total pinjaman" (pokok + bunga tahun ini)
  *   installmentMonthly
  *   installmentYearly
  */
