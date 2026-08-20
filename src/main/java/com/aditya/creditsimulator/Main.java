@@ -29,16 +29,12 @@ import java.util.Scanner;
 public class Main {
 
     private static final String LOAD_EXISTING_ENDPOINT =
-            "https://run.mocky.io/v3/9108b1da-beec-409e-ae14-e212003666c";
+            "https://gist.githubusercontent.com/adityaeee/35126a8035f369e5685ff9eb327b8ef3/raw/62fef1f77a9396a0081df823f9f85591db2b29ed/loan-data.json";
 
-    // Pakai Locale.US secara eksplisit (bukan Locale default sistem) supaya
-    // format angka konsisten (koma buat ribuan, titik buat desimal) di
-    // mesin manapun program ini dijalankan, nggak tergantung locale OS
-    // reviewer.
+    // pakai Locale.US -  koma buat ribuan, titik buat desimal
     private static final DecimalFormat CURRENCY_FORMAT =
             new DecimalFormat("#,##0.00", DecimalFormatSymbols.getInstance(Locale.US));
 
-    // --- Composition root: rakit semua dependency di sini ---
     private final VehicleFactory vehicleFactory = new VehicleFactory();
     private final LoanRequestFactory loanRequestFactory = new LoanRequestFactory(vehicleFactory);
     private final LoanValidator loanValidator = new LoanValidator();
@@ -55,7 +51,7 @@ public class Main {
         }
     }
 
-    // ---------- Mode: file input (non-interaktif) ----------
+    // Mode: file input
 
     private void runWithFileInput(String filePath) {
         try {
@@ -66,7 +62,7 @@ public class Main {
         }
     }
 
-    // ---------- Mode: interaktif (menu) ----------
+    // Mode: interaktif (menu)
 
     private void runInteractiveMenu() {
         Scanner scanner = new Scanner(System.in);
@@ -92,10 +88,10 @@ public class Main {
                     break;
                 case "4":
                     running = false;
-                    System.out.println("Terima kasih sudah menggunakan Credit Simulator.");
+                    System.out.println("Terima kasih sudah menggunakan Credit Simulator ;)");
                     break;
                 default:
-                    System.out.println("Pilihan tidak valid, coba lagi.\n");
+                    System.out.println("Pilihan tidak valid, coba lagi\n");
             }
         }
 
@@ -111,8 +107,8 @@ public class Main {
 
     private void printAvailableCommands() {
         System.out.println("--- Available Commands ---");
-        System.out.println("1 / New Calculation      : hitung cicilan pinjaman baru dari input manual");
-        System.out.println("2 / Load Existing        : ambil data pinjaman dari API dan hitung otomatis");
+        System.out.println("1 / New Calculation       : hitung cicilan pinjaman baru dari input manual");
+        System.out.println("2 / Load Existing         : ambil data pinjaman dari API dan hitung otomatis");
         System.out.println("3 / Show Commands         : tampilkan daftar perintah ini");
         System.out.println("4 / Exit                  : keluar dari aplikasi");
         System.out.println();
