@@ -1,9 +1,4 @@
 #!/usr/bin/env bash
-#
-# Sama persis kayak ./credit_simulator di root, cuma ditaro di bin/ juga
-# karena contoh penggunaan di soal nunjukin dua bentuk:
-#   $ bin/credit_simulator file_inputs.txt
-#   $ ./credit_simulator file_inputs.txt
 
 set -e
 
