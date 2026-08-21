@@ -4,6 +4,7 @@ FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 
 # Copy pom.xml
+COPY pom.xml .
 RUN mvn dependency:go-offline -B
 
 # Copy src
@@ -22,4 +23,4 @@ COPY --from=build /app/target/credit-simulator.jar ./credit-simulator.jar
 COPY file_inputs.txt ./file_inputs.txt
 
 # ENTRYPOINT
-ENTRYPOINT ["java", "-jar", "credit-simulator.jar"]
+ENTRYPOINT ["java", "-jar", "credit-simulator.jar"]ava", "-jar", "credit-simulator.jar"]
