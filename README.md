@@ -1,21 +1,20 @@
 # Credit Simulator
 
-Console application untuk menghitung simulasi cicilan bulanan kredit kendaraan
-(Motor/Mobil), dengan skema bunga yang naik tiap tahun dan pokok pinjaman yang
+Console application buat ngitung simulasi cicilan bulanan kredit kendaraan
+(Motor/Mobil), pake skema bunga yang naik tiap tahun dan pokok pinjaman yang
 menurun (declining balance method).
 
-Dibuat untuk technical test Backend Engineer.
+Dibuat buat technical test Backend Engineer.
 
 ---
 
 ## Bahasa & Tools
 
-- **Java 17** (plain Java, tanpa framework eksternal seperti Spring)
-- Library eksternal yang dipakai: **tidak ada**, kecuali `java.net.http.HttpClient`
-  bawaan JDK 11+ untuk fitur "Load Existing Calculation" (sesuai requirement yang
-  mengizinkan library khusus web service).
-- Parsing JSON dilakukan manual (regex), tanpa Gson/Jackson.
-- Build tool: **Maven**.
+- **Java 17** (plain Java, nggak pake framework eksternal)
+- Library eksternal yang dipakai: **nggak ada**, kecuali `java.net.http.HttpClient`
+  bawaan JDK 11+ buat fitur "Load Existing Calculation"
+- Parsing JSON dilakukan manual (regex)
+- Build tool: **Maven**
 
 ---
 
@@ -35,7 +34,7 @@ mvn clean package
 bin/credit_simulator
 ```
 
-Akan muncul menu:
+Bakal muncul menu:
 
 ```
 === Credit Simulator ===
@@ -46,11 +45,12 @@ Akan muncul menu:
 Pilih menu:
 ```
 
-- **New Calculation** → menanyakan 6 input satu-satu (jenis kendaraan, kondisi,
-  tahun, jumlah pinjaman, tenor, DP), lalu menampilkan breakdown cicilan per tahun.
-- **Load Existing Calculation** → mengambil data pinjaman dari API
-  (`run.mocky.io`) dan otomatis menghitung + menampilkan hasilnya.
-- **Show Commands** → menampilkan daftar menu yang tersedia.
+- **New Calculation** → nanya 6 input satu-satu (jenis kendaraan, kondisi,
+  tahun, jumlah pinjaman, tenor, DP), terus nampilin breakdown cicilan per tahun.
+- **Load Existing Calculation** → ambil data pinjaman dari API terus otomatis
+  ngitung + nampilin hasilnya. Cuma di sini, endpoint aslinya (`mocky.io`)
+  ternyata udah nggak aktif lagi, jadi saya alihin ke GitHub Gist.
+- **Show Commands** → nampilin daftar menu yang tersedia.
 - **Exit** → keluar dari aplikasi.
 
 ### 3. Mode File Input (non-interaktif)
@@ -79,8 +79,8 @@ Baru
 | 5 | Tenor Pinjaman (tahun) |
 | 6 | Jumlah DP |
 
-> Format ini **ditentukan sendiri** karena soal tidak menyertakan contoh isi
-> `file_inputs.txt` secara eksplisit — lihat bagian **Asumsi** di bawah.
+> Format ini saya tentuin sendiri, soalnya soal nggak kasih contoh isi
+> `file_inputs.txt`.
 
 ---
 
@@ -120,7 +120,7 @@ src/main/java/com/aditya/creditsimulator/
 ```
 
 Ada 3 sumber input (console, file, API) yang semuanya bermuara jadi bentuk data
-yang sama (`RawLoanInput`), lalu diproses lewat pipeline yang identik:
+yang sama (`RawLoanInput`), terus diproses lewat pipeline yang sama juga:
 
 ```
 RawLoanInput -> LoanRequestFactory -> LoanValidator -> LoanCalculator -> print
@@ -131,24 +131,24 @@ RawLoanInput -> LoanRequestFactory -> LoanValidator -> LoanCalculator -> print
 ## Design Pattern
 
 - **Factory Pattern** — `VehicleFactory` dan `LoanRequestFactory` jadi satu
-  pintu masuk untuk membuat objek yang sudah tervalidasi dari data mentah.
-- **Strategy Pattern** — `InputReader` sebagai interface, dengan dua
+  pintu masuk buat bikin objek yang udah tervalidasi dari data mentah
+- **Strategy Pattern** — `InputReader` sebagai interface, ada dua
   implementasi (`ConsoleInputReader`, `FileInputReader`) yang bisa saling
-  gantiin tanpa `Main.java` perlu tau detail sumbernya.
-- **Manual Dependency Injection** — semua class menerima dependency-nya lewat
-  constructor (bukan `new` sendiri di dalam), dirakit satu tempat di
-  `Main.java` (composition root). Ini menggantikan peran DI container seperti
-  Spring, sambil tetap tidak memakai framework eksternal.
+  gantiin tanpa `Main.java` perlu tau detail sumbernya
+- **Manual Dependency Injection** — semua class nerima dependency-nya lewat
+  constructor (bukan `new` sendiri di dalam), dirakit di satu tempat aja di
+  `Main.java`. Ini gantiin peran DI container kayak Spring, tapi tetap nggak
+  pake framework eksternal.
 - **Immutable objects** — `Vehicle`, `LoanRequest`, `InstallmentResult` semua
-  tidak punya setter; sekali dibuat lewat factory, datanya pasti valid dan
-  tidak bisa berubah di tengah jalan.
+  nggak punya setter; sekali dibuat lewat factory, datanya pasti valid dan
+  nggak bisa berubah lagi di tengah jalan
 
 ---
 
 ## Formula Perhitungan
 
-Menggunakan metode **declining balance**: pokok pinjaman yang dipakai hitung
-bunga tiap tahun adalah sisa dari tahun sebelumnya, bukan pokok awal terus-menerus.
+Pake metode **declining balance**: pokok pinjaman yang dipakai buat hitung
+bunga tiap tahun itu sisa dari tahun sebelumnya, bukan pokok awal terus-terusan
 
 Untuk tahun ke-n (n = 1..tenorYears):
 
@@ -163,87 +163,87 @@ pokok(n+1)            = totalWithInterest(n) - installmentYearly(n)
 
 dengan `pokok(1) = totalLoanAmount - downPayment`.
 
-Formula ini diverifikasi cocok 100% dengan sample di `Rumus.xlsx` (Mobil Baru,
-pinjaman 100jt, DP 25%, tenor 3 tahun → cicilan bulanan 2.250.000 / 2.432.250 /
-2.641.423,50 untuk tahun 1/2/3).
+Formula ini udah saya cocokin dan pas 100% sama sample di `Rumus.xlsx` (Mobil
+Baru, pinjaman 100jt, DP 25%, tenor 3 tahun → cicilan bulanan 2.250.000 /
+2.432.250 / 2.641.423,50 buat tahun 1/2/3).
 
 ---
 
 ## Asumsi yang Diambil
 
-Beberapa bagian soal tidak dispesifikasikan secara eksplisit atau berpotensi
-ambigu. Berikut asumsi yang diambil, beserta alasannya:
+Ada beberapa bagian soal yang menurut saya kurang jelas atau agak ambigu.
+Berikut asumsi-asumsi yang saya ambil selama ngerjain, plus alasannya:
 
 1. **Pola kenaikan interest rate**
-   Soal menyebut dua rule terpisah ("naik 0.1% tiap 1 tahun" dan "naik 0.5%
-   tiap 2 tahun") yang secara literal ambigu apakah keduanya numpuk. Setelah
-   dicocokkan ke sample `Rumus.xlsx` (8.0% → 8.1% → 8.6%), yang cocok adalah
-   interpretasi **bergantian** (bukan numpuk): transisi tahun ganjil naik
-   0.1%, transisi tahun genap naik 0.5% (menggantikan, bukan menambah, 0.1%
-   di tahun itu). Detail ada di Javadoc `InterestRateCalculator`.
+   Di soal ada dua rule: "naik 0.1% tiap 1 tahun" dan "naik 0.5% tiap 2
+   tahun". Awalnya saya bingung apakah dua-duanya numpuk atau nggak. Setelah
+   saya coba cocokin ke sample di `Rumus.xlsx` (8.0% → 8.1% → 8.6%), ternyata
+   yang cocok itu kalau kenaikannya **gantian**, bukan numpuk: tahun ganjil
+   naik 0.1%, tahun genap naik 0.5% (dan 0.5% ini gantiin yang 0.1%, bukan
+   ditambah). Detailnya saya jelasin lagi di Javadoc `InterestRateCalculator`.
 
 2. **Format `file_inputs.txt`**
-   Tidak ada contoh format file yang diberikan di soal. Format yang dipakai:
-   6 baris teks polos, satu nilai per baris, urutan sama seperti pertanyaan
-   di mode interaktif.
+   Soal nggak kasih contoh isi filenya kayak apa, jadi saya tentuin sendiri:
+   6 baris, satu nilai per baris, urutannya sama persis kayak pertanyaan di
+   mode interaktif.
 
 3. **Validasi tahun kendaraan**
-   Selain rule "kendaraan BARU tidak boleh tahun kurang dari currentYear-1",
-   ditambahkan validasi bahwa tahun kendaraan tidak boleh lebih besar dari
-   tahun sekarang (mencegah input tahun kendaraan di masa depan).
+   Selain rule "kendaraan BARU nggak boleh tahun kurang dari currentYear-1",
+   saya tambahin validasi tahun kendaraan juga nggak boleh lebih dari tahun
+   sekarang (masa iya ada motor keluaran tahun depan).
 
 4. **Validasi jumlah pinjaman & DP**
-   Ditambahkan validasi bahwa jumlah pinjaman harus lebih besar dari 0, dan
-   DP tidak boleh lebih besar atau sama dengan jumlah pinjaman total (kalau
-   DP >= pinjaman, tidak ada yang perlu dicicil).
+   Saya tambahin validasi jumlah pinjaman harus lebih dari 0, dan DP nggak
+   boleh lebih besar atau sama dengan jumlah pinjaman total — soalnya kalau
+   DP-nya segitu, nggak ada yang perlu dicicil lagi, jadi nggak masuk akal.
 
 5. **Mapping field API**
-   Response API pakai key `loanTenure`, sementara field internal aplikasi ini
-   namanya `tenorYears` — secara makna sama (tenor pinjaman dalam tahun),
-   sudah dipetakan di `JsonLoanResponseMapper`.
+   Response dari API pakai key `loanTenure`, sedangkan di aplikasi saya
+   namanya `tenorYears` — beda nama doang, maksudnya sama (tenor pinjaman
+   dalam tahun). Udah saya mapping di `JsonLoanResponseMapper`.
 
-6. **Instruksi "Tambahin menu save sheet, jadi bisa switch sheet"**
-   Instruksi ini ada di bagian "Dynamic Code Test" di awal dokumen soal,
-   tapi tidak nyambung dengan konteks soal kredit simulator (tidak ada
-   konsep "sheet" dalam aplikasi ini). Instruksi ini **tidak diimplementasikan**
-   karena dianggap tidak relevan/kemungkinan template generik dari jenis
-   soal lain. Instruksi "Tambahin menu (show)" pada bagian yang sama
-   diimplementasikan sebagai menu **"Show Commands"**.
+6. **Soal instruksi "Tambahin menu save sheet, jadi bisa switch sheet"**
+   Ini ada di bagian awal soal ("Dynamic Code Test"), tapi menurut saya nggak
+   nyambung sama konteks kredit simulator ini (nggak ada konsep "sheet" di
+   aplikasi ini). Jadi saya skip, kemungkinan ini instruksi generik dari
+   template soal lain. Instruksi satunya lagi di bagian yang sama, "Tambahin
+   menu (show)", tetap saya implementasikan sebagai menu **"Show Commands"**.
 
-7. **Endpoint "Load Existing Calculation" diganti dari yang diberikan di soal**
+7. **Endpoint "Load Existing Calculation" saya ganti dari yang dikasih di soal**
    URL asli dari soal (`https://run.mocky.io/v3/9108b1da-beec-409e-ae14-e212003666c`)
-   sudah tidak bisa diakses saat development (timeout / tidak ditemukan), dan
-   `designer.mocky.io` (tempat membuat mock baru) juga mengembalikan 404 saat
-   dicoba — mengindikasikan layanan mocky.io sedang bermasalah secara
-   keseluruhan, bukan cuma mock individual yang expired. Sebagai gantinya,
-   JSON yang sama persis di-host di GitHub Gist (lebih stabil dan tidak
-   memiliki masa expired): `[URL_GIST_DI_SINI]`. Struktur/isi JSON identik
-   dengan contoh di soal, hanya sumber hosting-nya yang berbeda. Logic
-   `LoanApiClient` dan `JsonLoanResponseMapper` tidak berubah sama sekali -
-   keduanya generik untuk endpoint JSON manapun.
+   udah nggak bisa diakses pas saya development (timeout terus / not found).
+   Saya coba bikin mock baru di `designer.mocky.io` juga ternyata 404 —
+   kelihatannya layanan mocky.io ini emang lagi bermasalah, bukan cuma mock
+   saya doang yang expired. Jadi saya pindahin JSON-nya ke GitHub Gist
+   (lebih stabil, nggak ada masa kadaluarsa):
+   ```
+   https://gist.githubusercontent.com/adityaeee/35126a8035f369e5685ff9eb327b8ef3/raw/62fef1f77a9396a0081df823f9f85591db2b29ed/loan-data.json
+   ```
+   Isi JSON-nya persis sama kayak contoh di soal, cuma beda tempat hosting
+   doang. Logic di `LoanApiClient` dan `JsonLoanResponseMapper` nggak saya
+   ubah sama sekali — keduanya emang generik, bisa dipakai buat endpoint
+   JSON manapun.
 
 8. **Field "Monthly Rata2" di `Rumus.xlsx`**
-   Nilai ini tidak berhasil dicocokkan dengan kombinasi perhitungan apa pun
-   dari data yang tersedia (bukan rata-rata sederhana dari installmentMonthly
-   3 tahun, bukan juga total dibagi total bulan). Karena requirement soal
-   hanya meminta output "Jumlah Cicilan Perbulan" (bukan rata-rata), field
-   ini tidak diimplementasikan.
+   Saya udah coba cocokin angka ini ke beberapa kombinasi perhitungan (rata-
+   rata dari 3 installmentMonthly, total dibagi total bulan, dll), tapi
+   nggak ada yang pas. Karena requirement cuma minta output "Jumlah Cicilan
+   Perbulan" (bukan rata-rata), field ini akhirnya nggak saya implementasikan.
 
 ---
 
 ## Unit Testing
 
-Karena keterbatasan waktu pengerjaan (48 jam) dan unit test bersifat "huge
-plus" (bukan mandatory) di requirement, unit test tidak sempat dibuat pada
-submission ini. Prioritas waktu yang tersisa difokuskan ke requirement yang
-bersifat **mandatory**: executable `credit_simulator`, Docker image, dan
-CI/CD pipeline.
+Karena waktu pengerjaan mepet (48 jam) dan unit test sifatnya "huge plus"
+(bukan mandatory) di requirement, saya belum sempat bikin unit test buat
+submission ini.
 
-Struktur kode sudah didesain agar mudah di-unit-test kalau ada waktu lebih
-lanjut - setiap class (`InterestRateCalculator`, `LoanCalculator`,
-`LoanValidator`, dll) menerima dependency lewat constructor (manual
-dependency injection) sehingga bisa di-test terisolasi tanpa perlu mock
-framework eksternal.
+Struktur kode udah saya desain biar gampang di-unit-test kalau ada waktu
+lebih lanjut — tiap class (`InterestRateCalculator`, `LoanCalculator`,
+`LoanValidator`, dll) nerima dependency-nya lewat constructor, jadi bisa
+di-test terisolasi tanpa perlu mock framework tambahan.
+
+---
 
 ## Build & Deployment
 
@@ -254,12 +254,12 @@ Build image:
 docker build -t credit-simulator .
 ```
 
-Jalankan mode interaktif (wajib pakai `-it` supaya bisa input keyboard):
+Jalankan mode interaktif (wajib pakai `-it` biar bisa input keyboard):
 ```bash
 docker run -it credit-simulator
 ```
 
-Jalankan mode file (pakai sample `file_inputs.txt` yang sudah di-bundle ke image):
+Jalankan mode file (pakai sample `file_inputs.txt` yang udah di-bundle ke image):
 ```bash
 docker run credit-simulator file_inputs.txt
 ```
@@ -269,22 +269,28 @@ Jalankan dengan file input custom dari luar container:
 docker run -v $(pwd)/my_file.txt:/app/my_file.txt credit-simulator my_file.txt
 ```
 
-Image menggunakan **multi-stage build**: tahap pertama compile pakai
-Maven+JDK 17, tahap kedua (image final) hanya berisi JRE + jar hasil
-compile, sehingga ukuran image jauh lebih kecil.
+Image-nya pake **multi-stage build**: tahap pertama compile pakai Maven+JDK
+17, tahap kedua (image final) cuma isinya JRE + jar hasil compile, jadi
+ukuran image-nya jauh lebih kecil.
 
 ### CI/CD
 
-Menggunakan **GitHub Actions** (`.github/workflows/ci.yml`), otomatis jalan
-setiap `git push` ke branch `main`. Pipeline-nya:
+Pake **GitHub Actions** (`.github/workflows/ci.yml`), otomatis jalan tiap
+`git push` ke branch `master`. Alur pipeline-nya:
 
 1. Checkout kode
 2. Setup JDK 17
-3. `mvn clean package` (validasi build sebelum masuk tahap Docker)
+3. `mvn clean package` (validasi build dulu sebelum masuk tahap Docker)
 4. Build Docker image (pakai `Dockerfile` multi-stage di atas)
 5. Push image ke Docker Hub: `adityae/credit-simulator:latest`
 
-Image publik bisa diambil dengan:
+Image publiknya bisa diambil dengan:
 ```bash
 docker pull adityae/credit-simulator:latest
 ```
+
+---
+
+## Creator
+
+Dibuat oleh **Rifky Aditya** untuk keperluan technical test Backend Engineer.
