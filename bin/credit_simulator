@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+#
+# Sama persis kayak ./credit_simulator di root, cuma ditaro di bin/ juga
+# karena contoh penggunaan di soal nunjukin dua bentuk:
+#   $ bin/credit_simulator file_inputs.txt
+#   $ ./credit_simulator file_inputs.txt
+
+set -e
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+JAR_PATH="$DIR/target/credit-simulator.jar"
+
+if [ ! -f "$JAR_PATH" ]; then
+    echo "Error: $JAR_PATH tidak ditemukan."
+    echo "Jalankan 'mvn clean package' dulu sebelum menjalankan script ini."
+    exit 1
+fi
+
+exec java -jar "$JAR_PATH" "$@"

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+#
+# Wrapper executable supaya bisa dijalankan langsung:
+#   $ ./credit_simulator
+#   $ ./credit_simulator file_inputs.txt
+#
+# Script ini nyari posisi dirinya sendiri dulu (biar tetap jalan walau
+# dipanggil dari direktori lain), lalu jalankan jar hasil "mvn package".
+
+set -e
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+JAR_PATH="$DIR/target/credit-simulator.jar"
+
+if [ ! -f "$JAR_PATH" ]; then
+    echo "Error: $JAR_PATH tidak ditemukan."
+    echo "Jalankan 'mvn clean package' dulu sebelum menjalankan script ini."
+    exit 1
+fi
+
+exec java -jar "$JAR_PATH" "$@"
