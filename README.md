@@ -233,8 +233,46 @@ ambigu. Berikut asumsi yang diambil, beserta alasannya:
 
 ## Unit Testing
 
-_(TODO — akan ditambahkan menyusul)_
+Karena keterbatasan waktu pengerjaan (48 jam) dan unit test bersifat "huge
+plus" (bukan mandatory) di requirement, unit test tidak sempat dibuat pada
+submission ini. Prioritas waktu yang tersisa difokuskan ke requirement yang
+bersifat **mandatory**: executable `credit_simulator`, Docker image, dan
+CI/CD pipeline.
 
-## Build & Deployment (Docker, CI/CD)
+Struktur kode sudah didesain agar mudah di-unit-test kalau ada waktu lebih
+lanjut - setiap class (`InterestRateCalculator`, `LoanCalculator`,
+`LoanValidator`, dll) menerima dependency lewat constructor (manual
+dependency injection) sehingga bisa di-test terisolasi tanpa perlu mock
+framework eksternal.
+
+## Build & Deployment
+
+### Docker
+
+Build image:
+```bash
+docker build -t credit-simulator .
+```
+
+Jalankan mode interaktif (wajib pakai `-it` supaya bisa input keyboard):
+```bash
+docker run -it credit-simulator
+```
+
+Jalankan mode file (pakai sample `file_inputs.txt` yang sudah di-bundle ke image):
+```bash
+docker run credit-simulator file_inputs.txt
+```
+
+Jalankan dengan file input custom dari luar container:
+```bash
+docker run -v $(pwd)/my_file.txt:/app/my_file.txt credit-simulator my_file.txt
+```
+
+Image menggunakan **multi-stage build**: tahap pertama compile pakai
+Maven+JDK 17, tahap kedua (image final) hanya berisi JRE + jar hasil
+compile, sehingga ukuran image jauh lebih kecil.
+
+### CI/CD
 
 _(TODO — akan ditambahkan menyusul)_
