@@ -275,4 +275,16 @@ compile, sehingga ukuran image jauh lebih kecil.
 
 ### CI/CD
 
-_(TODO — akan ditambahkan menyusul)_
+Menggunakan **GitHub Actions** (`.github/workflows/ci.yml`), otomatis jalan
+setiap `git push` ke branch `main`. Pipeline-nya:
+
+1. Checkout kode
+2. Setup JDK 17
+3. `mvn clean package` (validasi build sebelum masuk tahap Docker)
+4. Build Docker image (pakai `Dockerfile` multi-stage di atas)
+5. Push image ke Docker Hub: `adityae/credit-simulator:latest`
+
+Image publik bisa diambil dengan:
+```bash
+docker pull adityae/credit-simulator:latest
+```
